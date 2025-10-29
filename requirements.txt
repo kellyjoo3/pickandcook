@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+sqlalchemy
+python-dotenv
+google-api-python-client
+google-generativeai
+tenacity
+isodate
+packaging

@@ -11,8 +11,8 @@ language = "python3"
 requiredFiles = [".replit", "replit.nix"]
 
 [deployment]
-run = ["python", "collector.py"]
-deploymentTarget = "scheduled"
+run = ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port 5000"]
+deploymentTarget = "cloudrun"
 build = ["sh", "-c", "pip install -r requirements.txt"]
 
 [agent]
