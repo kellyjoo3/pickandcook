@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재료픽</title> <!-- 1. 페이지 제목 텍스트 변경 -->
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Inter + Orbit) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- 1. Inter 폰트 + Orbit 폰트 로드 -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbit&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Tailwind CSS 기본 설정 */
+        body { font-family: 'Inter', sans-serif; } /* 기본 폰트는 Inter 유지 */
+        /* 1. Orbit 폰트 클래스 추가 */
+        .Orbit { font-family: 'Orbit', cursive; }
+
+        /* --- 기존 스타일 유지 --- */
+        .horizontal-scroll-wrapper { display: flex; align-items: center; overflow: hidden; }
+        .horizontal-scroll-buttons { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; white-space: nowrap; padding-bottom: 8px; margin-left: 8px; }
+        .horizontal-scroll-buttons::-webkit-scrollbar { display: none; }
+        .tag-button { flex-shrink: 0; }
+        .fixed-label { flex-shrink: 0; }
+        .horizontal-scroll-content { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-behavior: smooth; }
+        .horizontal-scroll-content::-webkit-scrollbar { display: none; }
+        .recipe-card-container { flex: 0 0 auto; scroll-snap-align: start; width: 85%; max-width: 320px; }
+        /* ★★★ 화살표 스타일 제거 또는 주석 처리 ★★★ (1) */
+        /* .scroll-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: background-color 0.2s; }*/
+        /* .scroll-arrow:hover { background-color: rgba(255, 255, 255, 0.9); }*/
+        /* .scroll-arrow.left { left: 0.5rem; }*/
+        /* .scroll-arrow.right { right: 0.5rem; }*/
+        .card-content-grid { display: grid; grid-template-columns: 100px 1fr; gap: 1rem; }
+        .sauce-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .sauce-details.open { max-height: 500px; transition: max-height 0.5s ease-in; }
+        .channel-btn.active { background-color: theme('colors.indigo.600'); color: white; padding-left: 0.75rem; padding-right: 0.75rem; border-radius: 9999px; }
+        /* 즐겨찾기 관련 스타일 제거 또는 주석 처리 */
+
+
+
+        
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen">
+
+    <div class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md flex flex-col flex-1 overflow-hidden my-4">
+        <!-- 상단 고정: 제목, 검색, 필터 -->
+        <div class="px-6 pt-6 pb-2 border-b">
+            <!-- 1. 페이지 제목 텍스트 변경 및 폰트 적용 -->
+            <h1 class="font-Orbit text-4xl font-bold text-center mb-6 text-gray-800">재료픽</h1> <!-- mb-6 -> mb-2 -->
+            <!-- 4. 검색창 Placeholder 변경 -->
+            <div class="mb-4">
+                <input type="search" id="searchInput" placeholder="오늘은 뭐 먹지? 집에 있는 재료를 검색해보세요!" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <!-- 채널 필터 영역 -->
+            <div class="horizontal-scroll-wrapper mt-4">
+                 <!-- 5. 고정 라벨 삭제, 버튼 영역만 남김 -->
+                 <div id="channelFilters" class="horizontal-scroll-buttons gap-2 w-full">
+                     <span class="text-xs text-gray-500">채널 목록 불러오는 중...</span>
+                 </div>
+            </div>
+        </div>
+
+        <!-- 스크롤 영역 (남은 공간 차지) -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+            <!-- ★★★ 안내 문구 수정: 배경색 추가, 패딩 추가, 마진 축소 ★★★ -->
+            <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 사진 눌러 영상으로 레시피 확인🎬</p>
+            <!-- ★★★ 안내 문구 수정 끝 ★★★ -->
+
+            <!-- 즐겨찾기 섹션 주석 처리 -->
+            <!-- ... -->
+
+            <!-- 추천 요리 섹션 -->
+            <section id="recommendations" class="relative"> <!-- 안내 문구와의 간격은 space-y-8에 의해 조절됨 -->
+                <div class="flex items-start justify-between mb-3"> 
+                <h2 class="font-nanum-coding text-1xl font-semibold text-gray-700">추천픽 오늘의 요리 👉</h2>
+                <!-- ★★★ 버튼 클래스 수정: 패딩 추가 (클릭 영역 확보) ★★★ -->
+                <button id="refreshRecommendations" title="추천 새로고침" class="text-gray-500 hover:text-blue-600 focus:outline-none p-1 rounded-full"> <!--{/* p-1, rounded-full 추가 !-->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                </button>
+            </div>
+                <!-- ★★★ 화살표 버튼 제거 ★★★(2) -->
+                <div class="relative">
+                    <div id="recommendationResults" class="horizontal-scroll-content space-x-4 pb-4">
+                        <p class="text-gray-500 self-center w-full text-center">추천 레시피를 불러오는 중...</p>
+                    </div>
+                    <!-- <button class="scroll-arrow left recommend-arrow-left" onclick="scrollSection('recommendationResults', -1)"> <svg class="w-6 h-6 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg> </button> -->
+                    <!-- <button class="scroll-arrow right recommend-arrow-right" onclick="scrollSection('recommendationResults', 1)"> <svg class="w-6 h-6 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg> </button> -->
+                </div>
+            </section>
+
+            <!-- 검색 결과 섹션 -->
+            <section id="results" class="relative mt-8">
+                 <!-- 3. 섹션 제목 텍스트 변경 및 폰트 적용 -->
+                <h2 id="searchResultsTitle" class="font-Orbit text-1xl font-semibold mb-10 text-gray-700">재료픽 검색 결과👉</h2>
+                <!-- ★★★ 화살표 버튼 제거 ★★★ (3)-->
+                <div class="relative">
+                    <div id="searchResults" class="horizontal-scroll-content space-x-4 pb-4">
+                        <!-- 5. 로딩 메시지 변경 -->
+                        <p class="text-gray-500 self-center w-full text-center">어떤 재료로 픽할까요? 🍞🥑🍳</p>
+                    </div>
+                    <!-- <button class="scroll-arrow left search-arrow-left" onclick="scrollSection('searchResults', -1)"> <svg class="w-6 h-6 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg> </button> -->
+                    <!-- <button class="scroll-arrow right search-arrow-right" onclick="scrollSection('searchResults', 1)"> <svg class="w-6 h-6 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg> </button> -->
+                </div>
+            </section>
+        </div>
+    </div> <footer class="text-center px-4 pt-2 pb-4 mt-auto">
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+            AI/Ops 사이드 프로젝트 '재료픽' (by. ddd)
+            <br>
+            <a href="https://allesgute965.notion.site/29ab103176b2801b8b66fd5a03ac8cbf" target="_blank" 
+               class="text-blue-600 font-medium mx-1 group">
+               도전 과제와 문제 해결 과정 👉 
+               <span class="group-hover:underline">Notion</span>
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const searchResultsDiv = document.getElementById('searchResults');
+        const recommendationResultsDiv = document.getElementById('recommendationResults');
+        const channelFiltersDiv = document.getElementById('channelFilters');
+
+        let selectedChannelId = null;
+
+        // --- 유틸리티 함수 (createRecipeCard 재확인: 더보기 없음) ---
+         function createRecipeCard(recipe) {
+            const videoUrl = `https://www.youtube.com/watch?v=${recipe.video_id}`;
+            const thumbnailUrl = `https://i.ytimg.com/vi/${recipe.video_id}/mqdefault.jpg`;
+
+            // --- ▼▼▼ 변수 초기화 ▼▼▼ ---
+            let mainIngredientsHtml = '<li class="text-sm text-gray-500 italic">주요 재료 정보 없음</li>'; // 기본값 설정
+            let sauceIngredientsHtml = '';
+            let sauceToggleHtml = '';
+            // --- ▲▲▲ 변수 초기화 ▲▲▲ ---
+
+            try {
+                const ingredientsJsonString = recipe.ai_ingredients;
+                let ingredientsData = {};
+                if (ingredientsJsonString && typeof ingredientsJsonString === 'string' && ingredientsJsonString.trim().startsWith('{')) {
+                     ingredientsData = JSON.parse(ingredientsJsonString);
+                }
+
+                // --- ▼▼▼ mainList 처리 (더보기 없음) ▼▼▼ ---
+                const mainList = ingredientsData.main || [];
+                if (mainList.length > 0) {
+                    // 전체 목록으로 mainIngredientsHtml 생성
+                    mainIngredientsHtml = mainList.map(item => `<li class="text-sm text-gray-600 truncate">${item}</li>`).join('');
+                }
+                // (else 부분은 초기값으로 처리됨)
+                // --- ▲▲▲ mainList 처리 끝 ▲▲▲ ---
+
+                // 소스 목록 처리 (동일)
+                const sauceList = ingredientsData.sauce || [];
+                if (sauceList.length > 0) {
+                    sauceIngredientsHtml = sauceList.map(item => `<li class="text-sm text-gray-600 truncate">${item}</li>`).join('');
+                    sauceToggleHtml = `
+                        <button onclick="toggleSauce(this)" class="mt-2 text-sm text-black-600 hover:text-black-800 focus:outline-none">
+                            소스 보기 ▼
+                        </button>
+                        <div class="sauce-details ml-4 mt-1 border-l-2 border-blue-200 pl-3">
+                            <ul class="list-disc list-inside">${sauceIngredientsHtml}</ul>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                 console.error(`[${recipe.video_id}] Failed to parse ai_ingredients JSON:`, recipe.ai_ingredients, e);
+                 // 오류 시 표시될 메시지
+                 mainIngredientsHtml = '<li class="text-sm text-red-500 italic">재료 정보 처리 오류</li>';
+            }
+
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'recipe-card-container';
+            cardContainer.innerHTML = `
+                <div class="relative bg-gray-50 p-4 rounded-md border border-gray-200 shadow-sm h-full flex flex-col">
+                    <h3 class="font-semibold text-md mb-2 text-gray-800 truncate">${recipe.title || '제목 없음'}</h3>
+                    <div class="card-content-grid flex-1 overflow-hidden">
+                        
+                        <div class="flex flex-col">
+                            <a href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1"> 
+                                <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
+                            </a>
+                        
+                            <p class="text-[0.45rem] leading-tight text-gray-500 truncate text-left w-full"> 
+                                출처 ${recipe.channel_name || '알 수 없음'} (YouTube)
+                            </p>
+                        </div>
+                        
+                        <div class="overflow-y-auto text-sm pr-1">
+                            <h4 class="font-medium text-gray-700 mb-1">재료:</h4>
+                            <ul class="ingredient-list">
+                                ${mainIngredientsHtml}
+                            </ul>
+                            ${sauceToggleHtml}
+                        </div>
+                        
+                    </div>
+                </div>
+            `;
+            return cardContainer;
+        }
+
+        function toggleSauce(button) {
+             const detailsDiv = button.nextElementSibling;
+             const isOpen = detailsDiv.classList.contains('open');
+             detailsDiv.classList.toggle('open');
+             button.textContent = isOpen ? '소스 보기 ▼' : '소스 접기 ▲';
+        }
+
+        // --- API 호출 함수 (fetchAndDisplay) ---
+         async function fetchAndDisplay(url, targetDiv, placeholder) {
+            targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
+
+            // --- 제목 요소 가져오기 (검색 결과 섹션만 해당) ---
+            const searchTitleElement = document.getElementById('searchResultsTitle');
+
+            try {
+                const absoluteUrl = window.location.origin + url;
+                const response = await fetch(absoluteUrl);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                console.log(`Data received for ${url}:`, data); // API 응답 데이터 확인
+
+                targetDiv.innerHTML = '';
+
+                // --- 검색 결과 유무에 따라 제목 마진 변경 ---
+                if (!Array.isArray(data) || data.length === 0) {
+                     targetDiv.innerHTML = '<p class="text-gray-500 self-center w-full text-center">앗, 이번 재료는 없어요!<br>다른 재료로 픽해볼까요? 🥚🍅🧈</p>';
+                     // 검색 결과가 없을 때 -> 큰 마진 유지
+                     if (searchTitleElement && targetDiv === searchResultsDiv) {
+                         searchTitleElement.classList.remove('mb-3');
+                         searchTitleElement.classList.add('mb-20');
+                     }
+                } else {
+                     if (url.startsWith('/api/channels')) {
+                         loadChannelFilterButtons(data);
+                     } else { // 검색 또는 추천 결과
+                         data.forEach(recipe => {
+                             targetDiv.appendChild(createRecipeCard(recipe));
+                         });
+                         // 검색 결과가 있을 때 -> 작은 마진으로 변경
+                         if (searchTitleElement && targetDiv === searchResultsDiv) {
+                             searchTitleElement.classList.remove('mb-20');
+                             searchTitleElement.classList.add('mb-3');
+                         }
+                     }
+                }
+                // --- ★★★ 화살표 관련 함수 호출 제거됨 ★★★ ---
+                /*
+                if (targetDiv === recommendationResultsDiv || targetDiv === searchResultsDiv) {
+                    updateArrowVisibility(targetDiv.id); // <- 호출 제거
+                }
+                */
+            } catch (error) {
+                console.error('Fetch error:', error);
+                targetDiv.innerHTML = `<p class="text-red-500 self-center w-full text-center">오류: ${error.message}</p>`;
+                 // 오류 발생 시에도 큰 마진 유지 (선택 사항)
+                 if (searchTitleElement && targetDiv === searchResultsDiv) {
+                     searchTitleElement.classList.remove('mb-3');
+                     searchTitleElement.classList.add('mb-20');
+                 }
+                 // --- ★★★ 화살표 관련 함수 호출 제거됨 ★★★ ---
+                 /*
+                if (targetDiv === recommendationResultsDiv || targetDiv === searchResultsDiv) {
+                   updateArrowVisibility(targetDiv.id); // <- 호출 제거
+                }
+                */
+            }
+        }
+
+        // --- 채널 관련 함수 (loadChannelFilterButtons, selectChannel, triggerSearch) ---
+        function loadChannelFilterButtons(channels) {
+            channelFiltersDiv.innerHTML = ''; // '불러오는 중...' 제거
+            // 'All channels' 버튼 추가
+            const allButton = document.createElement('button');
+            allButton.textContent = 'All channels';
+            allButton.className = 'tag-button channel-btn active bg-indigo-600 text-white text-xs font-medium px-3 py-1 rounded-full focus:outline-none';
+            allButton.onclick = () => selectChannel(null, allButton);
+            channelFiltersDiv.appendChild(allButton);
+
+            if (channels.length > 0) {
+                channels.forEach(channel => {
+                    const button = document.createElement('button');
+                    button.textContent = channel.name;
+                    button.className = 'tag-button channel-btn bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full hover:bg-gray-300 focus:outline-none';
+                    button.onclick = () => selectChannel(channel.id, button);
+                    channelFiltersDiv.appendChild(button);
+                });
+            }
+        }
+
+        function selectChannel(channelId, clickedButton) {
+            selectedChannelId = channelId;
+            document.querySelectorAll('.channel-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+            });
+            clickedButton.classList.remove('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+            clickedButton.classList.add('active', 'bg-indigo-600', 'text-white');
+            triggerSearch(searchInput.value.trim()); // 현재 키워드로 검색 재실행
+        }
+
+        function triggerSearch(keyword) {
+            let searchUrl = '/api/search';
+            const params = new URLSearchParams();
+            if (keyword) params.append('keyword', keyword);
+            if (selectedChannelId) params.append('channel_id', selectedChannelId);
+            const queryString = params.toString();
+            if (queryString) searchUrl += `?${queryString}`;
+            fetchAndDisplay(searchUrl, searchResultsDiv, '검색 중...');
+
+            // --- ▼▼▼ 자동 스크롤 코드 추가 ▼▼▼ ---
+            // 검색 시작 후 잠시 뒤에 스크롤 시도 (결과 로딩 시간 고려)
+            setTimeout(() => {
+                const resultsSection = document.getElementById('results'); // 'results' 섹션 찾기
+                if (resultsSection) {
+                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 부드럽게 스크롤
+                    console.log("Scrolled to results section."); // 스크롤 확인 로그
+                } else {
+                    console.warn("Could not find results section to scroll to.");
+                }
+            }, 300); // 300ms 지연 (조절 가능)
+            // --- ▲▲▲ 자동 스크롤 코드 추가 ▲▲▲ ---
+
+
+        }
+        /* --- ★★★ 화살표 관련 함수 제거 또는 주석 처리 ★★★(6) --- */
+        /*
+        // --- 화살표 스크롤/표시 함수 (scrollSection, updateArrowVisibility) ---
+        function scrollSection(sectionId, direction) {
+            const section = document.getElementById(sectionId);
+            if (!section) return;
+            const firstCard = section.querySelector('.recipe-card-container');
+            let scrollAmount = section.offsetWidth * 0.8;
+            if (firstCard) scrollAmount = firstCard.offsetWidth + 16;
+            section.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+        }
+
+        function updateArrowVisibility(sectionId) {
+            const section = document.getElementById(sectionId);
+            const baseArrowClass = sectionId.replace('Results', '').toLowerCase();
+            const leftArrow = document.querySelector(`.${baseArrowClass}-arrow-left`);
+            const rightArrow = document.querySelector(`.${baseArrowClass}-arrow-right`);
+
+            if (section && leftArrow && rightArrow) {
+                const isScrollable = section.scrollWidth > section.clientWidth + 1;
+                const hasContent = section.querySelector('.recipe-card-container') !== null;
+                const showArrows = isScrollable && hasContent;
+
+                leftArrow.style.display = showArrows ? 'flex' : 'none';
+                rightArrow.style.display = showArrows ? 'flex' : 'none';
+
+                if (showArrows) {
+                    const maxScrollLeft = section.scrollWidth - section.clientWidth;
+                    leftArrow.style.opacity = section.scrollLeft > 5 ? '1' : '0.3';
+                    rightArrow.style.opacity = section.scrollLeft < maxScrollLeft - 5 ? '1' : '0.3';
+                }
+            } else {
+                 if(leftArrow) leftArrow.style.display = 'none';
+                 if(rightArrow) rightArrow.style.display = 'none';
+            }
+        }
+        */
+
+        // --- 이벤트 리스너 ---
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                triggerSearch(searchInput.value.trim());
+            }
+        });
+
+        // 페이지 로드 시
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndDisplay('/api/recommendations', recommendationResultsDiv, '추천 레시피를 불러오는 중...');
+            fetchAndDisplay('/api/channels', channelFiltersDiv, '채널 목록 불러오는 중...');
+
+            const refreshButton = document.getElementById('refreshRecommendations');
+            if (refreshButton) {
+                 refreshButton.addEventListener('click', () => {
+                    fetchAndDisplay('/api/recommendations', recommendationResultsDiv, '추천 새로고침 중...');
+                });
+            }
+             // ★★★ 화살표 관련 스크롤 리스너 제거 또는 주석 처리(7) ★★★
+            //recommendationResultsDiv.addEventListener('scroll', () => updateArrowVisibility('recommendationResults'));
+            //searchResultsDiv.addEventListener('scroll', () => updateArrowVisibility('searchResults'));
+        });
+
+    </script>
+</body>
+</html>
+
