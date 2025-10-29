@@ -63,7 +63,7 @@
         </div>
 
         <!-- 스크롤 영역 (남은 공간 차지) -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+        <div id="mainScrollArea"class="flex-1 overflow-y-auto p-6 space-y-8">
             <!-- ★★★ 안내 문구 수정: 배경색 추가, 패딩 추가, 마진 축소 ★★★ -->
             <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 사진 눌러 영상으로 레시피 확인🎬</p>
             <!-- ★★★ 안내 문구 수정 끝 ★★★ -->
@@ -316,14 +316,18 @@
             // --- ▼▼▼ 자동 스크롤 코드 추가 ▼▼▼ ---
             // 검색 시작 후 잠시 뒤에 스크롤 시도 (결과 로딩 시간 고려)
             setTimeout(() => {
-                const resultsSection = document.getElementById('results'); // 'results' 섹션 찾기
-                if (resultsSection) {
-                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 부드럽게 스크롤
-                    console.log("Scrolled to results section."); // 스크롤 확인 로그
-                } else {
-                    console.warn("Could not find results section to scroll to.");
+                const scrollContainer = document.getElementById('mainScrollArea'); // 1. 스크롤이 일어나는 컨테이너
+                const resultsSection = document.getElementById('results');       // 2. 스크롤 목적지 (검색 결과 섹션)
+
+                if (scrollContainer && resultsSection) {
+                    // 3. 컨테이너 내부에서 resultsSection의 상대적 위치(offsetTop)로 스크롤
+                    //    (pt-2 패딩 값 등 고려하여 약간의 여유 픽셀(예: 10px)을 뺄 수 있음)
+                    scrollContainer.scrollTo({ 
+                        top: resultsSection.offsetTop - scrollContainer.offsetTop - 10, // -10은 상단 여백
+                        behavior: 'smooth' 
+                    });
                 }
-            }, 300); // 300ms 지연 (조절 가능)
+            }, 300); // 300ms 지연
             // --- ▲▲▲ 자동 스크롤 코드 추가 ▲▲▲ ---
 
 
