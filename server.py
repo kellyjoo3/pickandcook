@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 # [ ★ 수정됨: create_engine, text 제거 ★ ] 26
 from sqlalchemy import create_engine, func, text, or_  # Import text for raw SQL
 from database import SessionLocal
-from init_db import Video, Channel  # Import DB models
+from init_db import Video, Channel, SearchLog  # Import DB models
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] [%(levelname)s] - %(message)s')
@@ -186,6 +186,19 @@ async def search_recipes(
             "ai_ingredients": r.ai_ingredients,
             "channel_name": r.channel_name
         } for r in results]
+
+        try:
+            new_log_entry = SearchLog(keyword=keyword,
+                                      channel_id_filter=channel_id,
+                                      result_count=len(recipe_list))
+            db.add(new_log_entry)
+            db.commit()  # ★ 중요: 이 commit은 로그 저장을 위한 것이므로 괜찮습니다.
+            logging.info(f"  -> 검색어 '{keyword}' DB에 로깅 완료.")
+        except Exception as log_e:
+            logging.error(f"  -> 검색어 로깅 실패: {log_e}")
+            db.rollback()  # 로그 저장 실패 시 롤백
+        # --- ▲▲▲ 검색 로그 DB에 저장 ▲▲▲ ---
+
         logging.info(f"API: /api/search - {len(recipe_list)}개 결과 반환")
         return recipe_list
         # --- ▲▲▲ 함수 본문 (try 블록 내부) ▲▲▲ ---
