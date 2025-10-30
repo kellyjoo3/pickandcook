@@ -6,17 +6,17 @@
     <title>재료픽</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Inter + Orbit) -->
+    <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 1. Inter 폰트 + Orbit 폰트 로드 -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbit&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 1. Orbit 폰트 로드 제거 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Tailwind CSS 기본 설정 */
         body { font-family: 'Inter', sans-serif; } /* 기본 폰트는 Inter 유지 */
 
-        /* --- 1. Orbit 폰트 클래스 추가 --- */
-        .font-orbit { font-family: 'Orbit', sans-serif; }
+        /* --- 1. Orbit 폰트 클래스 제거 --- */
+        /* .font-orbit { ... } */
 
         /* --- ★ 스크롤 버그 수정용 CSS ★ --- */
         .main-scroll-area {
@@ -44,7 +44,8 @@
     <div class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md flex flex-col flex-1 overflow-hidden my-4">
         <!-- 상단 고정: 제목, 검색, 필터 -->
         <div class="px-6 pt-8 pb-2 border-b"> <!-- pt-8 (상단 여백) -->
-            <h1 class="font-orbit text-4xl font-bold text-center mb-2 text-gray-800">재료픽</h1>
+            <!-- --- 1 & 2. 폰트 클래스 제거, 여백 수정 (mb-2 -> mb-6) ★ --- -->
+            <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">재료픽</h1>
             <!-- 1. placeholder 텍스트 변경 -->
             <div class="mb-4">
                 <input type="search" id="searchInput" placeholder="냉장고 속 재료를 검색해보세요! (900+ 쇼츠 대기중🍳)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -57,15 +58,15 @@
         </div>
 
         <!-- 스크롤 영역 -->
-        <!-- --- ★ 스크롤 컨테이너 ID 및 클래스 추가 ★ --- -->
-        <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-2 main-scroll-area">
+        <!-- --- ★ 3. 섹션 간격 수정 (space-y-2 -> space-y-4) ★ --- -->
+        <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-4 main-scroll-area">
             <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 🎬</p>
 
             <!-- 추천 요리 섹션 -->
             <section id="recommendations" class="relative">
                 <div class="flex items-center justify-between mb-3">
-                     <!-- --- 3. 폰트/크기 수정 (text-xl) ★ --- -->
-                    <h2 class="font-orbit text-xl font-semibold text-gray-700">추천픽 오늘의 요리 👉</h2>
+                     <!-- --- 1. 폰트 클래스 제거 ★ --- -->
+                    <h2 class="text-xl font-semibold text-gray-700">추천픽 오늘의 요리 👉</h2>
                     <button id="refreshRecommendations" title="추천 새로고침" class="text-gray-500 hover:text-blue-600 focus:outline-none p-1 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                     </button>
@@ -79,8 +80,8 @@
 
             <!-- 검색 결과 섹션 -->
             <section id="results" class="relative mt-4">
-                 <!-- --- 3. 폰트/크기 수정 (text-xl) ★ --- -->
-                <h2 class="font-orbit text-xl font-semibold mb-20 text-gray-700" id="searchResultsTitle">재료픽 검색 결과 👉</h2>
+                 <!-- --- 1. 폰트 클래스 제거 ★ --- -->
+                <h2 class="text-xl font-semibold mb-20 text-gray-700" id="searchResultsTitle">재료픽 검색 결과 👉</h2>
                 <div class="relative">
                     <div id="searchResults" class="horizontal-scroll-content space-x-4 pb-4">
                         <p class="text-gray-500 self-center w-full text-center">어떤 재료로 픽할까요?🥑🍞🥩</p>
@@ -90,22 +91,7 @@
         </div>
     </div>
 
-    <!-- --- 4. 푸터 수정 ★ --- -->
-    <footer class="text-center px-4 pt-2 pb-4 mt-auto">
-        <p class="text-[10px] text-gray-500 leading-relaxed">
-            ‘재료픽’은 AI/Ops 기반 개인 프로젝트입니다.
-            <br>
-            <a href="https://allesgute965.notion.site/29ab103176b2801b8b66fd5a03ac8cbf" target="_blank"
-               class="text-blue-600 font-medium mx-1 group"> <!-- text-black-600 -> text-blue-600 -->
-               제작 과정과 문제 해결 스토리는 👉
-               <span class="group-hover:underline">Notion</span> <!-- hover: -> group-hover: -->
-            </a>
-        </p>
-    </footer>
-    <!-- --- 푸터 수정 끝 --- -->
-
-    <!-- --- 2. GA 태그 추가 ★ --- -->
-    <!-- (id="[G-4STF6RT3N4]"로 자동 교체되었습니다) -->
+    <!-- --- GA 태그 ★ --- -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4STF6RT3N4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -114,6 +100,19 @@
       gtag('config', 'G-4STF6RT3N4'); 
     </script>
     <!-- --- GA 태그 끝 --- -->
+
+
+    <footer class="text-center px-4 pt-2 pb-4 mt-auto">
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+            ‘재료픽’은 AI/Ops 기반 개인 프로젝트입니다.
+            <br>
+            <a href="https://allesgute965.notion.site/29ab103176b2801b8b66fd5a03ac8cbf" target="_blank"
+               class="text-blue-600 font-medium mx-1 group"> 
+               제작 과정과 문제 해결 스토리는 👉
+               <span class="group-hover:underline">Notion</span> 
+            </a>
+        </p>
+    </footer>
 
 
     <script>
@@ -208,7 +207,6 @@
                     <h3 class="font-semibold text-md mb-2 text-gray-800 truncate">${recipe.title || '제목 없음'}</h3>
                     <div class="card-content-grid flex-1 overflow-hidden">
                         <div class="flex flex-col">
-                            <!-- 2. 주석 방식 변경 -->
                             <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${videoUrl}', '${sourceSection}')" href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1 relative group">
                                 <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
                                 <!-- 썸네일 오버레이 문구 (Hover) -->
@@ -243,7 +241,7 @@
              button.textContent = isOpen ? '소스 보기 ▼' : '소스 접기 ▲';
         }
 
-        // --- API 호출 함수 (fetchAndDisplay - ★ 스크롤 버그 수정) ---
+        // --- API 호출 함수 (fetchAndDisplay - 스크롤 버그 수정 완료) ---
          async function fetchAndDisplay(url, targetDiv, placeholder) {
             targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
             // (searchTitleElement는 전역 변수)
@@ -273,15 +271,11 @@
                              searchTitleElement.classList.add('mb-3');
                          }
 
-                         // --- ★★★ 5. 자동 스크롤 로직 (올바른 버전) ★★★ ---
+                         // --- ★★★ 스크롤 버그 수정 로직 (올바른 버전) ★★★ ---
                          if (targetDiv === searchResultsDiv) {
                              setTimeout(() => {
                                  if (scrollContainer && resultsSection) {
-                                     // resultsSection.offsetTop은 mainScrollArea 내부에서의 
-                                     // 상대적인 Y위치(Y좌표)입니다.
-                                     // 이 Y좌표가 scrollContainer의 scrollTop 값이 되어야 합니다.
-                                     const scrollTopTarget = resultsSection.offsetTop - 8; // pt-2 (8px) 만큼 여유
-
+                                     const scrollTopTarget = resultsSection.offsetTop - 8; 
                                      scrollContainer.scrollTo({ 
                                          top: scrollTopTarget,
                                          behavior: 'smooth' 
@@ -290,7 +284,7 @@
                                  }
                              }, 100); // 100ms 지연
                          }
-                         // --- ★★★ 자동 스크롤 로직 끝 ★★★ ---
+                         // --- ★★★ 스크롤 로직 끝 ★★★ ---
                      }
                 }
             } catch (error) {
@@ -384,7 +378,16 @@
         });
 
     </script>
-
+    <!-- ★★★ 4. GA 태그 추가 (head 밖 body 끝도 괜찮음) ★★★ -->
+    <!-- G-XXXXXXXXXX 를 본인의 측정 ID로 교체하세요 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=[G-4STF6RT3N4]"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '[G-4STF6RT3N4]'); 
+    </script>
+    <!-- ★★★ GA 태그 끝 ★★★ -->
 </body>
 </html>
 
