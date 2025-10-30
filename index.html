@@ -2,23 +2,20 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>재료픽</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Inter + Orbit) -->
+    <!-- Google Fonts (Inter + Nanum Gothic Coding) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- 1. Inter 폰트 + Orbit 폰트 로드 -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbit&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nanum+Gothic+Coding&display=swap" rel="stylesheet">
     <style>
         /* Tailwind CSS 기본 설정 */
-        body { font-family: 'Inter', sans-serif; } /* 기본 폰트는 Inter 유지 */
-        
-        /* --- 1. Orbit 폰트 클래스 추가 --- */
-        .font-orbit { font-family: 'Orbit', sans-serif; } /* cursive 대신 sans-serif Fallback */
+        body { font-family: 'Inter', sans-serif; }
+        .font-nanum-coding { font-family: 'Nanum Gothic Coding', monospace; }
 
-        /* --- ★ 스크롤 버그 수정용 CSS ★ --- */
+        /* --- 스크롤 컨테이너 기준점 설정 --- */
         .main-scroll-area {
             position: relative; /* 자식 요소의 offsetTop 계산 기준점이 되도록 설정 */
         }
@@ -43,10 +40,10 @@
 
     <div class="max-w-md w-full mx-auto bg-white rounded-lg shadow-md flex flex-col flex-1 overflow-hidden my-4">
         <!-- 상단 고정: 제목, 검색, 필터 -->
-        <div class="px-6 pt-8 pb-2 border-b"> <!-- pt-8 (상단 여백) -->
-            <h1 class="font-orbit text-4xl font-bold text-center mb-2 text-gray-800">재료픽</h1>
+        <div class="px-6 pt-8 pb-2 border-b">
+            <h1 class="font-nanum-coding text-4xl font-bold text-center mb-2 text-gray-800">재료픽</h1>
             <div class="mb-4">
-                <input type="search" id="searchInput" placeholder="냉장고 속 재료를 검색해보세요! (900+ 쇼츠 대기중🍳)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="search" id="searchInput" placeholder="냉장고 속 재료를 입력하세요 (예: 삼겹살, 두부)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="horizontal-scroll-wrapper mt-4">
                  <div id="channelFilters" class="horizontal-scroll-buttons gap-2 w-full">
@@ -56,15 +53,15 @@
         </div>
 
         <!-- 스크롤 영역 -->
-        <!-- --- ★ 스크롤 컨테이너 ID 및 클래스 추가 ★ --- -->
         <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-2 main-scroll-area">
+            <!-- ★ 1. 안내 문구 텍스트 변경 ★ -->
             <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 🎬</p>
 
             <!-- 추천 요리 섹션 -->
             <section id="recommendations" class="relative">
                 <div class="flex items-center justify-between mb-3">
-                     <!-- --- ★ 3. 폰트/크기 수정 ★ --- -->
-                    <h2 class="font-orbit text-xl font-semibold text-gray-700">추천픽 오늘의 요리 👉</h2>
+                    <!-- ★ 2. 추천픽 제목 텍스트 변경 ★ -->
+                    <h2 class="font-nanum-coding text-xl font-semibold text-gray-700">추천픽 오늘의 요리 👉</h2>
                     <button id="refreshRecommendations" title="추천 새로고침" class="text-gray-500 hover:text-blue-600 focus:outline-none p-1 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                     </button>
@@ -78,45 +75,54 @@
 
             <!-- 검색 결과 섹션 -->
             <section id="results" class="relative mt-4">
-                 <!-- --- ★ 3. 폰트/크기 수정 (mb-20 유지) ★ --- -->
-                <h2 class="font-orbit text-xl font-semibold mb-20 text-gray-700" id="searchResultsTitle">재료픽 검색 결과 👉</h2>
+                 <!-- ★ 3. 검색 결과 제목 텍스트 및 크기 변경 ★ -->
+                <h2 class="font-nanum-coding text-xl font-semibold mb-20 text-gray-700" id="searchResultsTitle">재료픽 검색 결과 👉</h2>
                 <div class="relative">
                     <div id="searchResults" class="horizontal-scroll-content space-x-4 pb-4">
-                        <p class="text-gray-500 self-center w-full text-center">어떤 재료로 픽할까요? -> 🥑🍞🥩</p>
+                         <!-- ★ 4. 검색 결과 로딩 메시지 변경 ★ -->
+                        <p class="text-gray-500 self-center w-full text-center">어떤 재료로 픽할까요?🥑🍞🥩</p>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
-    <!-- --- ★ 4. 푸터 수정 ★ --- -->
+    <!-- ★ GA 태그 ★ -->
+    <!-- G-XXXXXXXXXX 를 본인의 측정 ID로 교체하세요 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=[G-XXXXXXXXXX]"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '[G-XXXXXXXXXX]'); 
+    </script>
+    <!-- ★ GA 태그 끝 ★ -->
+
     <footer class="text-center px-4 pt-2 pb-4 mt-auto">
         <p class="text-[10px] text-gray-500 leading-relaxed">
             ‘재료픽’은 AI/Ops 기반 개인 프로젝트입니다.
             <br>
-            <a href="https://allesgute965.notion.site/29ab103176b2801b8b66fd5a03ac8cbf" target="_blank"
-               class="text-blue-600 font-medium mx-1 group"> <!-- (text-black-600 -> text-blue-600 수정) -->
+            <a href="httpsTo://allesgute965.notion.site/29ab103176b2801b8b66fd5a03ac8cbf" target="_blank"
+               class="text-blue-600 font-medium mx-1 group">
                제작 과정과 문제 해결 스토리는 👉
-               <span class="group-hover:underline">Notion</span> <!-- (hover: -> group-hover: 수정) -->
+               <span class="group-hover:underline">Notion</span>
             </a>
         </p>
     </footer>
-    <!-- --- 푸터 수정 끝 --- -->
-
 
     <script>
-        // --- ★ 5. (스크롤 버그 수정) 모든 전역 변수 선언 ★ ---
+        // --- 전역 변수 선언 ---
         const searchInput = document.getElementById('searchInput');
         const searchResultsDiv = document.getElementById('searchResults');
         const recommendationResultsDiv = document.getElementById('recommendationResults');
         const channelFiltersDiv = document.getElementById('channelFilters');
-        const scrollContainer = document.getElementById('mainScrollArea'); // 스크롤 컨테이너
-        const resultsSection = document.getElementById('results'); // 검색 결과 섹션
-        const searchTitleElement = document.getElementById('searchResultsTitle'); // 검색 제목
+        const scrollContainer = document.getElementById('mainScrollArea');
+        const resultsSection = document.getElementById('results');
+        const searchTitleElement = document.getElementById('searchResultsTitle');
 
         let selectedChannelId = null;
 
-        // --- ★ 5. (스크롤 버그 수정) 데이터 로깅/GA용 함수 선언 ★ ---
+        // --- 세션 ID 관리 함수 ---
         function getSessionId() {
             let sessionId = sessionStorage.getItem('recipeSessionId');
             if (!sessionId) {
@@ -126,18 +132,19 @@
             return sessionId;
         }
 
+        // --- 썸네일 클릭 로깅 함수 ---
         async function handleThumbnailClick(event, videoId, videoUrl, sourceSection) {
-            event.preventDefault();
+            event.preventDefault(); 
             const sessionId = getSessionId();
 
-            // GA 이벤트 전송 (gtag가 정의되어 있을 경우)
+            console.log(`Click logged: videoId=${videoId}, source=${sourceSection}, sessionId=${sessionId}`);
+
             if (typeof gtag === 'function') {
                 gtag('event', 'click_youtube', {
                   'video_id': videoId, 'source_section': sourceSection, 'session_id': sessionId
                 });
             }
             
-            // 백엔드 DB로 클릭 로그 전송
             try {
                 await fetch('/api/log-click', {
                     method: 'POST',
@@ -148,10 +155,10 @@
                 });
             } catch (e) { console.error("Failed to log click to backend DB:", e); }
 
-            window.open(videoUrl, '_blank'); // 새 탭으로 열기
+            window.open(videoUrl, '_blank');
         }
 
-        // --- 유틸리티 함수 (createRecipeCard - 더보기 제거, 출처 포함, 오버레이 포함) ---
+        // --- 유틸리티 함수 (createRecipeCard, toggleSauce) ---
          function createRecipeCard(recipe, sourceSection = 'unknown') {
             const videoUrl = `https://www.youtube.com/watch?v=${recipe.video_id}`;
             const thumbnailUrl = `https://i.ytimg.com/vi/${recipe.video_id}/mqdefault.jpg`;
@@ -197,11 +204,10 @@
                         <div class="flex flex-col">
                             <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${videoUrl}', '${sourceSection}')" href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1 relative group">
                                 <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
-                                <!-- 2. 썸네일 오버레이 문구 (JSX 주석 제거) -->
                                 <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center 
                                             opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <p class="text-white text-xs text-center font-medium p-2">
-                                        재료 픽! 요리 사진 누르면 레시피 등장 🎬
+                                        사진을 눌러 바로 영상 레시피 확인!
                                     </p>
                                 </div>
                             </a>
@@ -229,10 +235,10 @@
              button.textContent = isOpen ? '소스 보기 ▼' : '소스 접기 ▲';
         }
 
-        // --- API 호출 함수 (fetchAndDisplay - ★ 5. 스크롤 버그 수정) ---
+        // --- API 호출 함수 (fetchAndDisplay - 스크롤 버그 수정 완료) ---
          async function fetchAndDisplay(url, targetDiv, placeholder) {
             targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
-            // (searchTitleElement는 전역 변수로 이동)
+            // (searchTitleElement는 전역 변수)
             try {
                 const absoluteUrl = window.location.origin + url;
                 const response = await fetch(absoluteUrl);
@@ -241,6 +247,7 @@
 
                 targetDiv.innerHTML = '';
                 if (!Array.isArray(data) || data.length === 0) {
+                     // ★ 4. 결과 없음 메시지 변경 (줄바꿈 포함) ★
                      targetDiv.innerHTML = '<p class="text-gray-500 self-center w-full text-center">앗, 이번 재료는 없어요!<br>다른 재료로 픽해볼까요? 🥚🍅🧈</p>';
                      if (searchTitleElement && targetDiv === searchResultsDiv) {
                          searchTitleElement.classList.remove('mb-3');
@@ -259,18 +266,20 @@
                              searchTitleElement.classList.add('mb-3');
                          }
                          
-                         // --- ★★★ 5. 여기에 자동 스크롤 로직 추가 ★★★ ---
+                         // --- ★ 스크롤 버그 수정 로직 (올바른 버전) ★ ---
                          if (targetDiv === searchResultsDiv) {
                              setTimeout(() => {
                                  if (scrollContainer && resultsSection) {
+                                     const scrollTopTarget = resultsSection.offsetTop - 10;
                                      scrollContainer.scrollTo({ 
-                                         top: resultsSection.offsetTop - scrollContainer.offsetTop - 10, // -10px 여유
+                                         top: scrollTopTarget,
                                          behavior: 'smooth' 
                                      });
+                                     console.log(`Scrolling container to: ${scrollTopTarget}`);
                                  }
-                             }, 100);
+                             }, 100); // 100ms 지연
                          }
-                         // --- ★★★ 자동 스크롤 로직 끝 ★★★ ---
+                         // --- ★ 스크롤 로직 끝 ★ ---
                      }
                 }
             } catch (error) {
@@ -314,15 +323,14 @@
             triggerSearch(searchInput.value.trim());
         }
 
-        // --- 검색 실행 함수 (triggerSearch - ★ 5. 스크롤 로직 제거) ---
+        // --- 검색 실행 함수 (triggerSearch - 스크롤 로직 제거됨) ---
         function triggerSearch(keyword) {
             let searchUrl = '/api/search';
             const params = new URLSearchParams();
-            const sessionId = getSessionId(); // 세션 ID 가져오기
+            const sessionId = getSessionId(); 
 
             if (keyword) {
                 params.append('keyword', keyword);
-                // GA 이벤트 전송
                 if (typeof gtag === 'function') {
                     gtag('event', 'search', {
                       'search_term': keyword, 'channel_filter': selectedChannelId || 'all', 'session_id': sessionId
@@ -332,14 +340,14 @@
             if (selectedChannelId) {
                 params.append('channel_id', selectedChannelId);
             }
-            params.append('session_id', sessionId); // API 호출에 세션 ID 추가
+            params.append('session_id', sessionId); 
 
             const queryString = params.toString();
             searchUrl += `?${queryString}`;
             
             fetchAndDisplay(searchUrl, searchResultsDiv, '검색 중...');
             
-            // --- ★★★ 5. 여기 있던 setTimeout 블록 삭제 ★★★ ---
+            // (스크롤 로직은 fetchAndDisplay로 이동됨)
         }
 
         // --- 화살표 관련 함수 제거됨 ---
@@ -365,17 +373,6 @@
         });
 
     </script>
-
-    <!-- ★★★ 4. GA 태그 추가 (head 밖 body 끝도 괜찮음) ★★★ -->
-    <!-- G-XXXXXXXXXX 를 본인의 측정 ID로 교체하세요 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=[G-4STF6RT3N4]"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '[G-4STF6RT3N4]'); 
-    </script>
-    <!-- ★★★ GA 태그 끝 ★★★ -->
 
 </body>
 </html>
