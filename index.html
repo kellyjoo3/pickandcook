@@ -16,7 +16,12 @@
         body { font-family: 'Inter', sans-serif; } /* 기본 폰트는 Inter 유지 */
         /* 1. Orbit 폰트 클래스 추가 */
         .Orbit { font-family: 'Orbit', cursive; }
+        /* --- 검색 결과 수정 1030 --- */
+        .main-scroll-area {
+            position: relative; /* 자식 요소의 offsetTop 계산 기준점이 되도록 설정 */
+        }
 
+        
         /* --- 기존 스타일 유지 --- */
         .horizontal-scroll-wrapper { display: flex; align-items: center; overflow: hidden; }
         .horizontal-scroll-buttons { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; white-space: nowrap; padding-bottom: 8px; margin-left: 8px; }
@@ -63,8 +68,7 @@
         </div>
 
         <!-- 스크롤 영역 (남은 공간 차지) -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-8">
-            <!-- ★★★ 안내 문구 수정: 배경색 추가, 패딩 추가, 마진 축소 ★★★ -->
+        <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-2 main-scroll-area">
             <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 🎬</p>
             <!-- ★★★ 안내 문구 수정 끝 ★★★ -->
 
@@ -316,14 +320,20 @@
             // --- ▼▼▼ 자동 스크롤 코드 추가 ▼▼▼ ---
             // 검색 시작 후 잠시 뒤에 스크롤 시도 (결과 로딩 시간 고려)
             setTimeout(() => {
-                const resultsSection = document.getElementById('results'); // 'results' 섹션 찾기
-                if (resultsSection) {
-                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 부드럽게 스크롤
-                    console.log("Scrolled to results section."); // 스크롤 확인 로그
-                } else {
-                    console.warn("Could not find results section to scroll to.");
+                const scrollContainer = document.getElementById('mainScrollArea'); // 1. 스크롤이 일어나는 컨테이너
+                const resultsSection = document.getElementById('results');       // 2. 스크롤 목적지 (검색 결과 섹션)
+
+                if (scrollContainer && resultsSection) {
+                    // 3. 컨테이너 내부에서 resultsSection의 상대적 위치(offsetTop)로 스크롤
+                    //    offsetTop은 컨테이너 상단 패딩(pt-2)을 기준으로 계산됨.
+                    //    'results' 섹션의 상단 마진(mt-4)도 있으니, offsetTop이 정확한 위치.
+                    //    여기서 10px 정도를 빼서 헤더와 겹치지 않도록 살짝 여유를 줍니다.
+                    scrollContainer.scrollTo({ 
+                        top: resultsSection.offsetTop - 10, // -10px 여유 공간
+                        behavior: 'smooth' 
+                    });
                 }
-            }, 300); // 300ms 지연 (조절 가능)
+            }, 300); // 300ms 지연
 
             // --- ▲▲▲ 자동 스크롤 코드 추가 ▲▲▲ ---
 
