@@ -16,6 +16,12 @@
         body { font-family: 'Inter', sans-serif; } /* 기본 폰트는 Inter 유지 */
         /* 1. Orbit 폰트 클래스 추가 */
         .Orbit { font-family: 'Orbit', cursive; }
+
+        /* --- ★ 1. 스크롤 컨테이너 기준점 설정 ★ --- */
+        .main-scroll-area {
+            position: relative; /* 자식 요소의 offsetTop 계산 기준점이 되도록 설정 */
+        }
+
         
         /* --- 기존 스타일 유지 --- */
         .horizontal-scroll-wrapper { display: flex; align-items: center; overflow: hidden; }
@@ -62,8 +68,9 @@
             </div>
         </div>
 
-        <!-- 스크롤 영역 (남은 공간 차지) -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-8">
+        <!-- 스크롤 영역 -->
+        <!-- --- ★ 2. 스크롤 컨테이너에 ID 및 클래스 추가 ★ --- -->
+        <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-2 main-scroll-area">
             <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 🎬</p>
             <!-- ★★★ 안내 문구 수정 끝 ★★★ -->
 
@@ -246,14 +253,26 @@
                              searchTitleElement.classList.remove('mb-20');
                              searchTitleElement.classList.add('mb-3');
                          }
+                         // --- ★★★ 4. 여기에 자동 스크롤 로직 추가 ★★★ ---
+                          // (이 함수가 '검색 결과' 영역을 업데이트한 경우에만 스크롤)
+                          if (targetDiv === searchResultsDiv) {
+                              setTimeout(() => {
+                                  const scrollContainer = document.getElementById('mainScrollArea');
+                                  const resultsSection = document.getElementById('results');
+                                  if (scrollContainer && resultsSection) {
+                                      // 컨테이너 내부에서 resultsSection의 상대적 위치로 스크롤
+                                      scrollContainer.scrollTo({ 
+                                          top: resultsSection.offsetTop - scrollContainer.offsetTop - 10, // -10px 여유 공간
+                                          behavior: 'smooth' 
+                                      });
+                                  }
+                              }, 100); // 렌더링을 위해 100ms 지연
+                          }
+                          // --- ★★★ 자동 스크롤 로직 끝 ★★★ ---
+                        
                      }
                 }
-                // --- ★★★ 화살표 관련 함수 호출 제거됨 ★★★ ---
-                /*
-                if (targetDiv === recommendationResultsDiv || targetDiv === searchResultsDiv) {
-                    updateArrowVisibility(targetDiv.id); // <- 호출 제거
-                }
-                */
+                
             } catch (error) {
                 console.error('Fetch error:', error);
                 targetDiv.innerHTML = `<p class="text-red-500 self-center w-full text-center">오류: ${error.message}</p>`;
@@ -312,19 +331,7 @@
             if (queryString) searchUrl += `?${queryString}`;
             fetchAndDisplay(searchUrl, searchResultsDiv, '검색 중...');
 
-            // --- ▼▼▼ 자동 스크롤 코드 추가 ▼▼▼ ---
-            // 검색 시작 후 잠시 뒤에 스크롤 시도 (결과 로딩 시간 고려)
-            setTimeout(() => {
-                const resultsSection = document.getElementById('results'); // 'results' 섹션 찾기
-                if (resultsSection) {
-                    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 부드럽게 스크롤
-                    console.log("Scrolled to results section."); // 스크롤 확인 로그
-                } else {
-                    console.warn("Could not find results section to scroll to.");
-                }
-            }, 300); // 300ms 지연 (조절 가능)
-
-            // --- ▲▲▲ 자동 스크롤 코드 추가 ▲▲▲ ---
+              // --- ★★★ 3. 여기 있던 setTimeout 블록 삭제 ★★★ ---
 
 
         }
