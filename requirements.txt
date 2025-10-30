@@ -6,4 +6,5 @@ google-api-python-client
 google-generativeai
 tenacity
 isodate
+psycopg2-binary
 packaging
