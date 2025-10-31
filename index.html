@@ -138,29 +138,39 @@
         }
 
         // --- 썸네일 클릭 로깅 함수 ---
-        async function handleThumbnailClick(event, videoId, videoUrl, sourceSection) {
-            event.preventDefault(); 
+        async function handleThumbnailClick(event, videoId, sourceSection) {
+            // event.preventDefault(); // ★ 삭제 ★ (기본 링크 이동을 막지 않음)
             const sessionId = getSessionId();
 
-            console.log(`Click logged: videoId=${videoId}, source=${sourceSection}, sessionId=${sessionId}`);
+            console.log(`Click logged (background): videoId=${videoId}, source=${sourceSection}, sessionId=${sessionId}`);
 
+            // 1. GA로 이벤트 전송
             if (typeof gtag === 'function') {
                 gtag('event', 'click_youtube', {
-                  'video_id': videoId, 'source_section': sourceSection, 'session_id': sessionId
+                  'video_id': videoId, 
+                  'source_section': sourceSection, 
+                  'session_id': sessionId
                 });
             }
 
+            // 2. 백엔드 DB로 클릭 로그 전송 (★ await 삭제, keepalive 추가 ★)
             try {
-                await fetch('/api/log-click', {
+                // await를 쓰지 않음 (결과를 기다리지 않고 "보내기만" 함)
+                fetch('/api/log-click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        session_id: sessionId, video_id: videoId, source_section: sourceSection
-                    })
+                        session_id: sessionId,
+                        video_id: videoId,
+                        source_section: sourceSection
+                    }),
+                    keepalive: true // ★★★ 페이지가 닫혀도 이 요청을 백그라운드에서 계속 진행 ★★★
                 });
-            } catch (e) { console.error("Failed to log click to backend DB:", e); }
+            } catch (e) { 
+                console.error("Failed to log click to backend DB:", e); 
+            }
 
-            window.open(videoUrl, '_blank');
+            // window.open(videoUrl, '_blank'); // ★ 삭제 ★ (이제 <a> 태그의 href가 이 역할을 함)
         }
 
         // --- 유틸리티 함수 (createRecipeCard, toggleSauce) ---
@@ -208,8 +218,12 @@
                     <div class="card-content-grid flex-1 overflow-hidden">
                         
                         <div class="flex flex-col">
-                            <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${videoUrl}', '${sourceSection}')" 
+                            <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${sourceSection}')" 
                             href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1 relative group">
+//...
+
+
+
                                 <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
 
 
