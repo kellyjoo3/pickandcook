@@ -251,16 +251,46 @@
              button.textContent = isOpen ? '소스 보기 ▼' : '소스 접기 ▲';
         }
 
-        // --- API 호출 함수 (fetchAndDisplay - 스크롤 버그 수정 완료) ---
+        // --- ★★★ API 호출 함수 (fetchAndDisplay - 재시도 로직 + 스크롤 버그 수정) ★★★ ---
          async function fetchAndDisplay(url, targetDiv, placeholder) {
             targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
-             
+
+            // --- ▼▼▼ '콜드 스타트' 재시도 헬퍼 함수 (V3 - 최종본) ▼▼▼ ---
+            async function attemptFetch(isRetry = false) {
+                try {
+                    const absoluteUrl = window.location.origin + url;
+                    const response = await fetch(absoluteUrl);
+
+                    if (!response.ok) {
+                        // 500번대 서버 오류(콜드 스타트)만 재시도 대상
+                        if (response.status >= 500 && !isRetry) {
+                            console.warn(`Fetch failed (status ${response.status}), retrying in 1500ms...`, url);
+                            await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5초 대기 (DB 깨어날 시간)
+                            return await attemptFetch(true); // 재시도
+                        } else {
+                            // 404, 400번대 오류 또는 재시도 500 오류는 즉시 실패 처리
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                    }
+                    return await response.json(); // 성공
+                } catch (error) {
+                    // 네트워크 오류 (예: fetch 자체 실패) 또는 1차 500 오류
+                    if (!isRetry) { // 콜드 스타트를 위해 1회만 재시도
+                        console.warn(`Fetch failed (network error?), retrying in 1500ms...`, url, error);
+                        await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5초 대기
+                        return await attemptFetch(true);
+                    } else {
+                        // 재시도에도 실패하면 최종 오류
+                        throw error; 
+                    }
+                }
+            }
+            // --- ▲▲▲ 재시도 헬퍼 함수 정의 끝 ▲▲▲ ---
+
             // (searchTitleElement는 전역 변수)
             try {
-                const absoluteUrl = window.location.origin + url;
-                const response = await fetch(absoluteUrl);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json(); 
+                // 'attemptFetch' 헬퍼 함수를 호출하여 데이터를 가져옴
+                const data = await attemptFetch();
 
                 targetDiv.innerHTML = '';
                 if (!Array.isArray(data) || data.length === 0) {
@@ -283,10 +313,13 @@
                          }
 
                          // --- ★★★ 스크롤 버그 수정 로직 (올바른 버전) ★★★ ---
+                         // (이 함수가 '검색 결과' 영역을 업데이트한 경우에만 스크롤)
                          if (targetDiv === searchResultsDiv) {
                              setTimeout(() => {
                                  if (scrollContainer && resultsSection) {
-                                     const scrollTopTarget = resultsSection.offsetTop - 8; 
+                                     // resultsSection.offsetTop은 mainScrollArea 내부에서의 상대적 Y위치
+                                     const scrollTopTarget = resultsSection.offsetTop - 8; // pt-2(8px) 여유
+
                                      scrollContainer.scrollTo({ 
                                          top: scrollTopTarget,
                                          behavior: 'smooth' 
@@ -299,8 +332,9 @@
                      }
                 }
             } catch (error) {
-                console.error('Fetch error:', error);
-                targetDiv.innerHTML = `<p class="text-red-500 self-center w-full text-center">오류: ${error.message}</p>`;
+                // 재시도(attemptFetch)까지 최종 실패한 오류만 여기에 잡힘
+                console.error('Fetch error after retry:', error); 
+                targetDiv.innerHTML = `<p class="text-red-500 self-center w-full text-center">오류: ${error.message} (서버 응답 없음)</p>`; // 오류 메시지 수정
                  if (searchTitleElement && targetDiv === searchResultsDiv) {
                      searchTitleElement.classList.remove('mb-3');
                      searchTitleElement.classList.add('mb-20');
