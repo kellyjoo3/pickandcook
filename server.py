@@ -3,16 +3,24 @@ import logging
 from fastapi import FastAPI, Request, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles  # (Optional) If you have CSS/JS files later
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 # [ ★ 수정됨: create_engine, text 제거 ★ ] 26
 from sqlalchemy import create_engine, func, text, or_  # Import text for raw SQL
 from database import SessionLocal
-from init_db import Video, Channel, SearchLog  # Import DB models
+from init_db import Video, Channel, SearchLog, ClickLog  # Import DB models
 
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] [%(levelname)s] - %(message)s')
 # FastAPI 앱 생성
 app = FastAPI()
+
+
+class ClickLogRequest(BaseModel):  # ★ 이 클래스 정의가 있는지? ★
+    session_id: str
+    video_id: str
+    source_section: str
+
 
 # --- 1. 기본 설정 (로깅, DB 세션) ---
 
@@ -141,11 +149,12 @@ async def search_recipes(
                                     min_length=1,
                                     description="검색할 키워드 (제목 또는 재료)"),
         channel_id: str | None = Query(None, description="특정 채널 ID (선택 사항)"),
+        session_id: str | None = Query(None, description="사용자 세션 ID"),
         # DB 세션 의존성 추가 (필수)
         db: Session = Depends(get_db)):
     """ai_title 또는 ai_ingredients에서 키워드로 레시피를 검색합니다. (채널 필터링 추가)"""
     logging.info(
-        f"API: /api/search 호출됨 (keyword='{keyword}', channel_id='{channel_id}')"
+        f"API: /api/search 호출됨 (keyword='{keyword}', channel_id='{channel_id}', session_id='{session_id}')"
     )
     try:
         # --- ▼▼▼ 함수 본문 (try 블록 내부) ▼▼▼ ---
@@ -188,7 +197,8 @@ async def search_recipes(
         } for r in results]
 
         try:
-            new_log_entry = SearchLog(keyword=keyword,
+            new_log_entry = SearchLog(session_id=session_id,
+                                      keyword=keyword,
                                       channel_id_filter=channel_id,
                                       result_count=len(recipe_list))
             db.add(new_log_entry)
@@ -233,60 +243,22 @@ def get_channels(db: Session = Depends(get_db)):
         logging.error(f"Error fetching channels: {e}")  # 오류 로그 강화
         # FastAPI에서는 오류 발생 시 HTTP 상태 코드와 함께 오류 응답을 보내는 것이 좋습니다.
         raise HTTPException(status_code=500, detail="채널 목록 조회 중 오류 발생")
-        # return [] # 또는 빈 리스트 반환 유지
-    """키워드로 레시피를 검색합니다 (제목 또는 재료 포함)."""
-    if not keyword:
-        return []  # 키워드가 없으면 빈 리스트 반환
 
-    db = DBSession()
+
+@app.post("/api/log-click")  # ★ 이 함수 전체가 있는지? ★
+async def log_click(request: ClickLogRequest, db: Session = Depends(get_db)):
+    """썸네일 클릭 이벤트를 DB에 저장합니다."""
+    logging.info(f"API: /api/log-click 호출됨 (video_id='{request.video_id}')")
     try:
-        query = db.query(Video).filter(Video.analysis_status == 'completed',
-                                       Video.ai_title != '분석 실패',
-                                       Video.ai_title != 'AI 통신 오류')
-
-        # 키워드 검색 조건 (ai_title 또는 ai_ingredients 컬럼에서 LIKE 검색)
-        # SQLite는 기본적으로 대소문자 구분 안함
-        search_term = f"%{keyword}%"
-        query = query.filter((Video.ai_title.like(search_term))
-                             | (Video.ai_ingredients.like(search_term)))
-
-        # 채널 ID 필터링 (선택 사항)
-        if channel_id:
-            query = query.filter(Video.channel_id == channel_id)
-
-        # 최신순 정렬 (선택 사항)
-        query = query.order_by(Video.published_at.desc())
-
-        search_results = query.limit(20).all()  # 최대 20개 결과
-
-        results = []
-        for video in search_results:
-            try:
-                ingredients_data = json.loads(video.ai_ingredients or '{}')
-            except json.JSONDecodeError:
-                ingredients_data = {"main": [], "sauce": []}
-
-            results.append({
-                "video_id":
-                video.video_id,
-                "title":
-                video.ai_title or video.title,
-                "main_ingredients":
-                ingredients_data.get("main", []),
-                "sauce_ingredients":
-                ingredients_data.get("sauce", [])
-            })
-        return results
+        new_click = ClickLog(session_id=request.session_id,
+                             video_id=request.video_id,
+                             source_section=request.source_section)
+        db.add(new_click)
+        db.commit()
+        return {"status": "success"}
     except Exception as e:
-        logging.error(f"검색 오류 (키워드: {keyword}): {e}")
-        raise HTTPException(status_code=500, detail="Database query error")
-    #finally:
-    #db.close()
+        logging.error(f"  -> 클릭 로깅 실패: {e}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="클릭 로그 저장 실패")
 
-
-# --- 4. 서버 실행 (터미널에서 uvicorn server:app --reload 입력) ---
-#if __name__ == "__main__":
-    import uvicorn
-    logging.info("API 서버를 직접 실행합니다 (테스트용).")
-    logging.info("운영 환경에서는 uvicorn 명령어를 사용하세요.")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # return [] # 또는 빈 리스트 반환 유지

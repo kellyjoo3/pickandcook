@@ -208,8 +208,11 @@
                     <div class="card-content-grid flex-1 overflow-hidden">
                         
                         <div class="flex flex-col">
-                            <a href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1"> 
+                            <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${videoUrl}', '${sourceSection}')" 
+                            href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1 relative group">
                                 <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
+
+
                             </a>
                         
                             <p class="text-[0.60rem] leading-tight text-gray-500 truncate text-left w-full"> 
