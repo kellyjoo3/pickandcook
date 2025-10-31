@@ -48,7 +48,7 @@
             <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">재료픽</h1>
             <!-- 1. placeholder 텍스트 변경 -->
             <div class="mb-4">
-                <input type="search" id="searchInput" placeholder="냉장고 속 재료를 검색해보세요! (900+ 쇼츠 대기중🍳)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="search" id="searchInput" placeholder="냉장고 속 재료를 검색해보세요! (예: 두부, 계란..)" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="horizontal-scroll-wrapper mt-4">
                  <div id="channelFilters" class="horizontal-scroll-buttons gap-2 w-full">
@@ -60,7 +60,7 @@
         <!-- 스크롤 영역 -->
         <!-- --- ★ 3. 섹션 간격 수정 (space-y-2 -> space-y-4) ★ --- -->
         <div id="mainScrollArea" class="flex-1 overflow-y-auto px-6 pt-2 space-y-8 main-scroll-area">
-            <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 🎬</p>
+            <p class="text-sm text-gray-700 text-center mb-1 px-4 py-2 bg-gray-100 rounded-md">재료 픽! 요리 사진 누르면 레시피 등장 (🍳🎬1000+)</p>
 
             <!-- 추천 요리 섹션 -->
             <section id="recommendations" class="relative">
@@ -220,8 +220,6 @@
                         <div class="flex flex-col">
                             <a onclick="handleThumbnailClick(event, '${recipe.video_id}', '${sourceSection}')" 
                             href="${videoUrl}" target="_blank" class="block rounded overflow-hidden aspect-[9/16] mb-1 relative group">
-//...
-
 
 
                                 <img src="${thumbnailUrl}" alt="${recipe.title || '레시피 영상 썸네일'}" class="w-full h-full object-cover" loading="lazy">
