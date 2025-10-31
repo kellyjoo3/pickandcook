@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles  # (Optional) If you have CSS/JS fil
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 # [ ★ 수정됨: create_engine, text 제거 ★ ] 26
-from sqlalchemy import create_engine, func, text, or_  # Import text for raw SQL
+from sqlalchemy import create_engine, func, text, or_, and_  # v1.1 2개 이상 검색어(and_추가)
 from database import SessionLocal
 from init_db import Video, Channel, SearchLog, ClickLog  # Import DB models
 
@@ -180,12 +180,26 @@ async def search_recipes(
             logging.debug(f"  -> 채널 필터 적용: {channel_id}")
             query = query.filter(Video.channel_id == channel_id)
 
-        # 키워드 필터링 (or_ 와 contains 사용)
+        # 키워드 필터링 (★ 동적 AND 로직으로 수정 ★) # v1.1 2개 이상 검색어
         if keyword:
-            logging.debug(f"  -> 키워드 필터 적용: {keyword}")
-            query = query.filter(
-                or_(Video.ai_title.contains(keyword),
-                    Video.ai_ingredients.contains(keyword)))
+            logging.debug(f"  -> 키워드 필터 적용 (AND 검색): {keyword}")
+
+            # 1. 검색어를 공백 기준으로 분리 (예: "김치 고기" -> ["김치", "고기"])
+            search_terms = keyword.split()
+
+            # 2. "AND"로 묶을 조건 리스트 생성 (예: [ (김치조건), (고기조건) ])
+            and_conditions = []
+
+            # 3. 각 단어(term)별로 (제목 OR 재료) 조건을 만듭니다
+            for term in search_terms:
+                # (제목에 '김치'가 있거나 OR 재료에 '김치'가 있거나)
+                or_condition = or_(Video.ai_title.contains(term),
+                                   Video.ai_ingredients.contains(term))
+                and_conditions.append(or_condition)
+
+            # 4. 모든 조건(... AND ... AND ...)을 쿼리에 최종 적용합니다
+            if and_conditions:
+                query = query.filter(and_(*and_conditions))
 
         # 결과 가져오기 및 변환
         results = query.order_by(Video.published_at.desc()).limit(50).all()
