@@ -254,12 +254,37 @@
         // --- API 호출 함수 (fetchAndDisplay - 스크롤 버그 수정 완료) ---
          async function fetchAndDisplay(url, targetDiv, placeholder) {
             targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
-            // (searchTitleElement는 전역 변수)
-            try {
-                const absoluteUrl = window.location.origin + url;
-                const response = await fetch(absoluteUrl);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
+             
+             async function attemptFetch(isRetry = false) {*
+                 try {
+                     const absoluteUrl = window.location.origin + url;
+                     const response = await fetch(absoluteUrl);
+                     if (!response.ok) {
+                         // 500번대 서버 오류만 재시도 대상
+                         if (response.status >= 500 && !isRetry) {
+                             throw new Error(`HTTP error! status: ${response.status}`);
+                         } else if (response.status >= 500 && isRetry) {
+                             throw new Error(`HTTP error after retry! status: ${response.status}`);
+                         }
+                     }
+                     return await response.json(); // 성공
+                 } catch (error) {
+                     if (!isRetry) { // 콜드 스타트를 위해 1회만 재시도
+                         console.warn(`Fetch failed (cold start?), retrying in 2000ms...`, url, error);
+                         await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기 (DB 깨어날 시간)
+                         return await attemptFetch(true); // 재시도 플래그와 함께 다시 호출
+                     } else {
+                         throw error; // 재시도에도 실패
+                     }
+                 }
+             }
+             // --- ▲▲▲ 재시도 헬퍼 함수 정의 끝 ▲▲▲ ---
+
+             // (searchTitleElement는 전역 변수)
+             try {
+                 // --- ▼▼▼ attemptFetch(재시도 함수) 호출로 변경 ▼▼▼ ---
+                 const data = await attemptFetch();
+                 // --- ▲▲▲ attemptFetch(재시도 함수) 호출로 변경 ▲▲▲ ---
 
                 targetDiv.innerHTML = '';
                 if (!Array.isArray(data) || data.length === 0) {
