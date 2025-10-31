@@ -255,12 +255,12 @@
          async function fetchAndDisplay(url, targetDiv, placeholder) {
             targetDiv.innerHTML = `<p class="text-gray-500 self-center w-full text-center">${placeholder}</p>`;
              
-           * // (searchTitleElement는 전역 변수)
+            // (searchTitleElement는 전역 변수)
             try {
                 const absoluteUrl = window.location.origin + url;
                 const response = await fetch(absoluteUrl);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json(); *
+                const data = await response.json(); 
 
                 targetDiv.innerHTML = '';
                 if (!Array.isArray(data) || data.length === 0) {
