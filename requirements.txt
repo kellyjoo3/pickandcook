@@ -1,10 +1,26 @@
-fastapi
-uvicorn
-sqlalchemy
-python-dotenv
-google-api-python-client
-google-generativeai
-tenacity
-isodate
-psycopg2-binary
+[Web Server] FastAPI 프레임워크 및 운영 서버 환경
+
+fastapi>=0.100.0
+uvicorn>=0.20.0
+gunicorn>=20.1.0
+
+[Database] SQLAlchemy ORM 및 PostgreSQL 연결 (Neon DB용)
+
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+
+[AI & API] Google Gemini 및 YouTube Data API
+
+google-api-python-client>=2.0.0
+google-generativeai>=0.3.0
+
+[Utilities] 환경 변수 관리, 재시도 로직, 날짜 처리
+
+python-dotenv>=1.0.0
+tenacity>=8.2.0
+isodate>=0.6.0
 packaging
+
+[Pydantic] 데이터 검증 및 설정 관리 (FastAPI 핵심 의존성)
+
+pydantic>=2.0.0
